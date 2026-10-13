@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{{ object.nombre }} · SpaceWise{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{% url 'clientes:lista' %}">Clientes</a> &rsaquo; Detalle de cliente</div>
+<div class="page-title">
+  <div style="display:flex;gap:12px;align-items:center">
+    <span class="chip tone-indigo">{% icon "user" %}</span>
+    <div><h1>{{ object.nombre }}</h1><p>Vista general de la información del cliente</p></div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="{% url 'clientes:editar' object.pk %}">{% icon "edit" %} Editar</a>
+    <a class="btn btn-primary" href="{% url 'clientes:crear' %}">{% icon "plus" %} Nuevo cliente</a>
+  </div>
+</div>
+
+<section class="card">
+  <div class="kv"><span class="chip">{% icon "user" %}</span><b>Cliente:</b><span class="val">{{ object.nombre }}</span></div>
+  <div class="kv"><span class="chip">{% icon "info" %}</span><b>Información general:</b><span class="val">{{ object.informacion_general|default:"—" }}</span></div>
+  <div class="kv"><span class="chip">{% icon "file-text" %}</span><b>Historial de cotizaciones:</b><span class="val">{{ n_cotizaciones }}</span></div>
+  <div class="kv"><span class="chip">{% icon "cart" %}</span><b>Compras registradas:</b><span class="val">{{ n_compras|default:"—" }}</span></div>
+  <div class="kv"><span class="chip">{% icon "undo" %}</span><b>Devoluciones:</b><span class="val">{{ n_devoluciones|default:"—" }}</span></div>
+  {% if object.email or object.telefono or object.rut %}
+  <div class="kv"><span class="chip">{% icon "clipboard" %}</span><b>Contacto:</b>
+    <span class="val">{{ object.rut }}{% if object.rut and object.email %} · {% endif %}{{ object.email }}{% if object.telefono %} · {{ object.telefono }}{% endif %}</span></div>
+  {% endif %}
+</section>
+
+<section class="card">
+  <div class="toolbar" style="justify-content:space-between">
+    <h2 style="margin:0">Actividad reciente</h2>
+    <div class="actions">
+      <a class="btn btn-sm" href="{% url 'cotizaciones:crear' %}">{% icon "plus" %} Cotización</a>
+    </div>
+  </div>
+  {% if actividad %}
+    {% for a in actividad %}
+    <div class="activity">
+      <span>{% if a.url %}<a href="{{ a.url }}">{{ a.titulo }}</a>{% else %}{{ a.titulo }}{% endif %}
+        <small class="muted"> · {{ a.detalle }}</small></span>
+      <span class="muted">{{ a.fecha|date:"d/m/Y" }}</span>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="dashed"><b>Aún no hay actividad registrada para este cliente.</b><br><small>Las cotizaciones, compras y devoluciones aparecerán aquí.</small></div>
+  {% endif %}
+</section>
+{% endblock %}

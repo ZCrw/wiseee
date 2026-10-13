@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Compras · SpaceWise{% endblock %}
+{% block content %}
+<div class="page-title">
+  <div><h1>Compras</h1><p>Ventas, compras y devoluciones registradas.</p></div>
+  <a class="btn btn-primary" href="{% url 'operaciones:crear' %}">{% icon "plus" %} Registrar compra</a>
+</div>
+<section class="card">
+  <div class="toolbar">
+    <form method="get">
+      <input type="search" name="q" value="{{ q }}" placeholder="Cliente o RUT" aria-label="Buscar">
+      <select name="tipo" onchange="this.form.submit()" aria-label="Filtrar por tipo">
+        <option value="">Todos los tipos</option>
+        {% for value, label in tipos %}<option value="{{ value }}" {% if value == tipo %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+      <select name="estado" onchange="this.form.submit()" aria-label="Filtrar por estado">
+        <option value="">Todos los estados</option>
+        {% for value, label in estados %}<option value="{{ value }}" {% if value == estado %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+      <button class="btn" type="submit">Filtrar</button>
+      {% if q or tipo or estado %}<a class="btn" href="{% url 'operaciones:lista' %}">Limpiar</a>{% endif %}
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>CLIENTE</th><th>TIPO</th><th>CONTENEDOR</th><th class="num">CANTIDAD</th><th>FECHA</th><th>ESTADO</th><th class="num">ACCIONES</th></tr></thead>
+      <tbody>
+      {% for o in operaciones %}
+        <tr>
+          <td><a href="{{ o.cliente.get_absolute_url }}"><b>{{ o.cliente.nombre }}</b></a></td>
+          <td>{{ o.get_tipo_display }}</td>
+          <td>{{ o.contenedor.nombre|default:"—" }}</td>
+          <td class="num">{{ o.cantidad }}</td>
+          <td>{{ o.fecha|date:"d/m/Y" }}</td>
+          <td><span class="badge {{ o.badge }}">{{ o.get_estado_display }}</span></td>
+          <td class="num actions" style="justify-content:flex-end">
+            <a class="btn btn-sm" href="{% url 'operaciones:editar' o.pk %}">Editar</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'operaciones:eliminar' o.pk %}">Eliminar</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="empty">No hay registros que coincidan.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "_pagination.html" %}
+</section>
+{% endblock %}

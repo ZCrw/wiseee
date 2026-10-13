@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Contenedores · SpaceWise{% endblock %}
+{% block content %}
+<div class="page-title">
+  <div><h1>Contenedores</h1><p>Catálogo, precios y stock disponible.</p></div>
+  <a class="btn btn-primary" href="{% url 'contenedores:crear' %}">{% icon "plus" %} Nuevo contenedor</a>
+</div>
+<section class="card">
+  <div class="toolbar">
+    <form method="get">
+      <input type="search" name="q" value="{{ q }}" placeholder="Nombre o ubicación" aria-label="Buscar contenedores">
+      <select name="tipo" onchange="this.form.submit()" aria-label="Filtrar por tipo">
+        <option value="">Todos los tipos</option>
+        {% for value, label in tipos %}<option value="{{ value }}" {% if value == tipo %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+      <button class="btn" type="submit">Filtrar</button>
+      {% if q or tipo %}<a class="btn" href="{% url 'contenedores:lista' %}">Limpiar</a>{% endif %}
+    </form>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>CONTENEDOR</th><th>TIPO</th><th>CONDICIÓN</th><th class="num">PRECIO</th><th class="num">STOCK</th><th>UBICACIÓN</th><th class="num">ACCIONES</th></tr></thead>
+      <tbody>
+      {% for c in contenedores %}
+        <tr>
+          <td><b>{{ c.nombre }}</b>{% if not c.activo %} <span class="badge">Inactivo</span>{% endif %}</td>
+          <td>{{ c.get_tipo_display }}</td>
+          <td><span class="badge {% if c.condicion == 'nuevo' %}info{% endif %}">{{ c.get_condicion_display }}</span></td>
+          <td class="num">${{ c.precio|floatformat:"0g" }}</td>
+          <td class="num">{% if c.stock == 0 %}<span class="badge bad">Sin stock</span>{% else %}{{ c.stock }}{% endif %}</td>
+          <td>{{ c.ubicacion|default:"—" }}</td>
+          <td class="num actions" style="justify-content:flex-end">
+            <a class="btn btn-sm" href="{% url 'contenedores:editar' c.pk %}">Editar</a>
+            <a class="btn btn-sm btn-danger" href="{% url 'contenedores:eliminar' c.pk %}">Eliminar</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="empty">Todavía no hay contenedores en el catálogo.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "_pagination.html" %}
+</section>
+{% endblock %}

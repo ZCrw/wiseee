@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{{ titulo }} · SpaceWise{% endblock %}
+{% block content %}
+<div class="page-title"><h1>{{ titulo }}</h1></div>
+<form method="post" novalidate>
+  {% csrf_token %}
+  <section class="card" style="margin-bottom:20px">
+    {% if form.non_field_errors %}<div class="alert-form">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="grid-2">
+      {% for field in form %}
+      <div class="field" {% if field.name == "notas" %}style="grid-column:1/-1"{% endif %}>
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}{{ field.errors }}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Contenedores</h2>
+    {{ formset.management_form }}
+    {% if formset.non_form_errors %}<div class="alert-form">{{ formset.non_form_errors }}</div>{% endif %}
+    <div class="table-wrap">
+      <table class="items-table">
+        <thead><tr><th>CONTENEDOR</th><th>CANTIDAD</th><th>PRECIO UNIT. (opcional)</th><th></th></tr></thead>
+        <tbody id="items-body">
+          {% for f in formset %}{% include "cotizaciones/_item_row.html" with f=f %}{% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="font-size:12px">Si dejas el precio vacío se usa el precio del catálogo.</p>
+    <button type="button" class="btn btn-sm" id="add-item">{% icon "plus" %} Agregar contenedor</button>
+  </section>
+
+  <div class="actions" style="margin-top:20px">
+    <button class="btn btn-primary" type="submit">Guardar cotización</button>
+    <a class="btn" href="{{ cancel_url }}">Cancelar</a>
+  </div>
+</form>
+
+<template id="empty-row"><table><tbody>{% include "cotizaciones/_item_row.html" with f=formset.empty_form %}</tbody></table></template>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var prefix = "{{ formset.prefix }}";
+  var total = document.getElementById("id_" + prefix + "-TOTAL_FORMS");
+  var body = document.getElementById("items-body");
+
+  function bindRemove(row) {
+    row.querySelector(".js-remove").addEventListener("click", function () {
+      var del = row.querySelector("input[type=checkbox][name$='-DELETE']");
+      if (del) del.checked = true;
+      row.style.display = "none";
+    });
+  }
+
+  body.querySelectorAll(".item-row").forEach(bindRemove);
+
+  document.getElementById("add-item").addEventListener("click", function () {
+    var idx = parseInt(total.value, 10);
+    var tpl = document.getElementById("empty-row").innerHTML.replace(/__prefix__/g, idx);
+    var holder = document.createElement("table");
+    holder.innerHTML = tpl;
+    var row = holder.querySelector("tr");
+    body.appendChild(row);
+    bindRemove(row);
+    total.value = idx + 1;
+  });
+})();
+</script>
+{% endblock %}
