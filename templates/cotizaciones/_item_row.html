@@ -1,0 +1,13 @@
+{% load ui %}
+<tr class="item-row">
+  <td>
+    {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+    {{ f.contenedor }}{{ f.contenedor.errors }}
+  </td>
+  <td class="col-qty">{{ f.cantidad }}{{ f.cantidad.errors }}</td>
+  <td class="col-price">{{ f.precio_unitario }}{{ f.precio_unitario.errors }}</td>
+  <td class="col-del">
+    <span hidden>{{ f.DELETE }}</span>
+    <button type="button" class="icon-btn js-remove" aria-label="Quitar ítem">{% icon "x" %}</button>
+  </td>
+</tr>

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}{{ object.numero }} · SpaceWise{% endblock %}
+{% block content %}
+<div class="crumbs"><a href="{% url 'cotizaciones:lista' %}">Cotizaciones</a> &rsaquo; {{ object.numero }}</div>
+<div class="page-title">
+  <div>
+    <h1>{{ object.numero }} <span class="badge {{ object.badge }}" style="vertical-align:middle">{{ object.get_estado_display }}</span></h1>
+    <p><a href="{{ object.cliente.get_absolute_url }}">{{ object.cliente.nombre }}</a> · {{ object.fecha|date:"d/m/Y" }}{% if object.vendedor %} · Vendedor: {{ object.vendedor }}{% endif %}</p>
+  </div>
+  <div class="actions">
+    {% if object.estado == "pendiente" %}
+      <form class="inline" method="post" action="{% url 'cotizaciones:estado' object.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="aprobada"><button class="btn btn-primary" type="submit">{% icon "check" %} Aprobar</button></form>
+      <form class="inline" method="post" action="{% url 'cotizaciones:estado' object.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="rechazada"><button class="btn btn-danger" type="submit">{% icon "x" %} Rechazar</button></form>
+    {% else %}
+      <form class="inline" method="post" action="{% url 'cotizaciones:estado' object.pk %}">{% csrf_token %}<input type="hidden" name="estado" value="pendiente"><button class="btn" type="submit">{% icon "undo" %} Volver a pendiente</button></form>
+    {% endif %}
+    <a class="btn" href="{% url 'cotizaciones:editar' object.pk %}">{% icon "edit" %} Editar</a>
+    <a class="btn btn-danger" href="{% url 'cotizaciones:eliminar' object.pk %}">{% icon "trash" %} Eliminar</a>
+  </div>
+</div>
+
+<section class="card">
+  <h2>Contenedores cotizados</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>CONTENEDOR</th><th class="num">CANTIDAD</th><th class="num">PRECIO UNIT.</th><th class="num">SUBTOTAL</th></tr></thead>
+      <tbody>
+      {% for i in object.items.all %}
+        <tr>
+          <td>{{ i.contenedor }}</td>
+          <td class="num">{{ i.cantidad }}</td>
+          <td class="num">${{ i.precio_unitario|floatformat:"0g" }}</td>
+          <td class="num">${{ i.subtotal|floatformat:"0g" }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="total-row"><span class="muted">Total</span> <strong>${{ object.total|floatformat:"0g" }}</strong></div>
+  {% if object.notas %}<p class="muted" style="margin-bottom:0"><b>Notas:</b> {{ object.notas }}</p>{% endif %}
+</section>
+
+{% if object.operaciones.exists %}
+<section class="card">
+  <h2>Compras generadas</h2>
+  {% for o in object.operaciones.all %}
+  <div class="activity"><span>{{ o.get_tipo_display }} · {{ o.cantidad }} u. · {{ o.contenedor|default:"—" }}</span><span class="badge {{ o.badge }}">{{ o.get_estado_display }}</span></div>
+  {% endfor %}
+</section>
+{% endif %}
+{% endblock %}

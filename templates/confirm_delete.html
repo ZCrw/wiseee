@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Eliminar · SpaceWise{% endblock %}
+{% block content %}
+<div class="page-title"><h1>Eliminar</h1></div>
+<form method="post" class="card form-card">
+  {% csrf_token %}
+  <p>¿Seguro que quieres eliminar <strong>{{ object }}</strong>? Esta acción no se puede deshacer.</p>
+  <div class="actions">
+    <button class="btn btn-danger-solid" type="submit">Sí, eliminar</button>
+    <a class="btn" href="{{ cancel_url }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

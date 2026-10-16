@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load ui %}
+{% block title %}Vendedores · SpaceWise{% endblock %}
+{% block content %}
+<div class="page-title">
+  <div><h1>Vendedores</h1><p>Tu equipo comercial.</p></div>
+  <a class="btn btn-primary" href="{% url 'vendedores:crear' %}">{% icon "plus" %} Nuevo vendedor</a>
+</div>
+<section class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>NOMBRE</th><th>USUARIO</th><th>CORREO</th><th>TELÉFONO</th><th>ESTADO</th><th class="num">ACCIONES</th></tr></thead>
+      <tbody>
+      {% for v in vendedores %}
+        <tr>
+          <td><b>{{ v }}</b></td>
+          <td>{{ v.user.username }}</td>
+          <td>{{ v.user.email|default:"—" }}</td>
+          <td>{{ v.telefono|default:"—" }}</td>
+          <td><span class="badge {% if v.activo %}ok{% endif %}">{% if v.activo %}Activo{% else %}Inactivo{% endif %}</span></td>
+          <td class="num"><a class="btn btn-sm" href="{% url 'vendedores:editar' v.pk %}">Editar</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="empty">Aún no hay vendedores.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
